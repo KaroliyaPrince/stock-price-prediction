@@ -1,0 +1,28 @@
+# Python / Virtual Environment
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+*.pkl
+
+# Node / Frontend
+node_modules/
+dist/
+.output/
+.oxlintrc.json
+.env
+.env.local
+
+# Jupyter Checkpoints
+.ipynb_checkpoints/
+anaconda_projects/
+
+# Operating System & Archives
+.DS_Store
+Thumbs.db
+*.rar
+*.zip
+*.log
