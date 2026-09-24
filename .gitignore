@@ -6,7 +6,7 @@ __pycache__/
 venv/
 ENV/
 env/
-*.pkl
+# Note: .pkl files in backend/models/ are tracked for API inference
 
 # Node / Frontend
 node_modules/

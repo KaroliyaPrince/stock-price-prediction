@@ -139,7 +139,8 @@ const SCENARIO_PRESETS = [
 ];
 
 const INITIAL_FORM = SCENARIO_PRESETS[0].data;
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const rawApiUrl = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL = rawApiUrl.replace(/\/+$/, '');
 
 export default function App() {
   const [formData, setFormData] = useState(INITIAL_FORM);
