@@ -608,7 +608,7 @@ export default function App() {
                 <div className={`px-4 py-2 rounded-2xl border flex items-center gap-2 ${
                   darkMode ? 'bg-[#0b0f1a] border-cyan-500/30 text-cyan-300' : 'bg-white border-cyan-200 text-cyan-800'
                 }`}>
-                  <Zap className="w-4 h-4 text-cyan-500" /> 3 ML Models Active
+                  <Zap className="w-4 h-4 text-cyan-500" /> 5 ML Models Active
                 </div>
                 <div className={`px-4 py-2 rounded-2xl border flex items-center gap-2 ${
                   darkMode ? 'bg-[#0b0f1a] border-purple-500/30 text-purple-300' : 'bg-white border-purple-200 text-purple-800'
@@ -1107,7 +1107,7 @@ export default function App() {
                           }`}>
                             <div className="flex items-center justify-between text-xs font-black text-emerald-400 uppercase tracking-wider">
                               <span className="flex items-center gap-1.5"><Scale className="w-4 h-4" /> Multi-Model Comparison Table</span>
-                              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">All 3 Predictions</span>
+                              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">All 5 Predictions</span>
                             </div>
 
                             {/* 1. Linear */}
@@ -1146,6 +1146,30 @@ export default function App() {
                                 </div>
                               </div>
                               <div className="text-base font-black font-mono text-amber-300">₹{prediction.all_models.svr}</div>
+                            </div>
+
+                            {/* 4. AdaBoost */}
+                            <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0b0f1a]/80 border border-red-500/30">
+                              <div className="flex items-center gap-2">
+                                <Flame className="w-4 h-4 text-red-400" />
+                                <div>
+                                  <div className="text-xs font-bold text-red-300">AdaBoost</div>
+                                  <div className="text-[9px] text-gray-400 font-mono">Ensemble Method</div>
+                                </div>
+                              </div>
+                              <div className="text-base font-black font-mono text-red-300">₹{prediction.all_models.adaboost}</div>
+                            </div>
+
+                            {/* 5. Random Forest */}
+                            <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0b0f1a]/80 border border-green-500/30">
+                              <div className="flex items-center gap-2">
+                                <Layers className="w-4 h-4 text-green-400" />
+                                <div>
+                                  <div className="text-xs font-bold text-green-300">Random Forest</div>
+                                  <div className="text-[9px] text-gray-400 font-mono">Tree Ensemble</div>
+                                </div>
+                              </div>
+                              <div className="text-base font-black font-mono text-green-300">₹{prediction.all_models.random_forest}</div>
                             </div>
                           </div>
                         </div>

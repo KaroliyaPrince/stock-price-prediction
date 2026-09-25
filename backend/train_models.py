@@ -22,7 +22,13 @@ def train_and_save():
     
     # 1. Bagging Linear Regression
     print("Training Bagging Linear Regression...")
-    bagging_linear = BaggingRegressor(estimator=LinearRegression(), n_estimators=15, random_state=42)
+    bagging_linear = BaggingRegressor(
+        estimator=LinearRegression(), 
+        n_estimators=30, 
+        max_samples=0.6, 
+        max_features=0.8, 
+        random_state=42
+    )
     bagging_linear.fit(X, y)
     joblib.dump(bagging_linear, os.path.join(MODELS_DIR, "stock_model.pkl"))
     
@@ -30,21 +36,41 @@ def train_and_save():
     print("Training Bagging Polynomial Regression...")
     poly_transformer = PolynomialFeatures(degree=2, include_bias=True)
     X_poly = poly_transformer.fit_transform(X)
-    bagging_poly = BaggingRegressor(estimator=LinearRegression(), n_estimators=15, random_state=42)
+    bagging_poly = BaggingRegressor(
+        estimator=LinearRegression(), 
+        n_estimators=30, 
+        max_samples=0.6, 
+        max_features=0.8, 
+        random_state=42
+    )
     bagging_poly.fit(X_poly, y)
     joblib.dump(bagging_poly, os.path.join(MODELS_DIR, "stock_poly_model.pkl"))
     
-    # 3. AdaBoost Regressor
-    print("Training AdaBoost Regressor...")
-    adaboost = AdaBoostRegressor(n_estimators=50, random_state=42)
-    adaboost.fit(X, y)
-    joblib.dump(adaboost, os.path.join(MODELS_DIR, "stock_adaboost_model.pkl"))
+    # 3. Bagging AdaBoost Regressor
+    print("Training Bagging AdaBoost Regressor...")
+    adaboost_base = AdaBoostRegressor(n_estimators=20, random_state=42)
+    bagging_adaboost = BaggingRegressor(
+        estimator=adaboost_base,
+        n_estimators=15,
+        max_samples=0.6,
+        max_features=0.8,
+        random_state=42
+    )
+    bagging_adaboost.fit(X, y)
+    joblib.dump(bagging_adaboost, os.path.join(MODELS_DIR, "stock_adaboost_model.pkl"))
     
-    # 4. Random Forest Regressor
-    print("Training Random Forest Regressor...")
-    rf = RandomForestRegressor(n_estimators=50, random_state=42)
-    rf.fit(X, y)
-    joblib.dump(rf, os.path.join(MODELS_DIR, "stock_rf_model.pkl"))
+    # 4. Bagging Random Forest Regressor
+    print("Training Bagging Random Forest Regressor...")
+    rf_base = RandomForestRegressor(n_estimators=20, max_depth=10, random_state=42)
+    bagging_rf = BaggingRegressor(
+        estimator=rf_base,
+        n_estimators=15,
+        max_samples=0.6,
+        max_features=0.8,
+        random_state=42
+    )
+    bagging_rf.fit(X, y)
+    joblib.dump(bagging_rf, os.path.join(MODELS_DIR, "stock_rf_model.pkl"))
 
     print("All models trained and saved successfully.")
 
