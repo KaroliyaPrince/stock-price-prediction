@@ -310,7 +310,7 @@ export default function App() {
   const percentDelivFormat = formData.percent_deliverable > 1.0 ? 'Percentage (Auto /100)' : 'Ratio (0 - 1.0)';
 
   // Dynamic Chart Data & Styling
-  const labelsList = ['Prev Close', 'Open Price', 'Low Price', 'Close Price', 'VWAP', 'Linear Pred', 'Poly Pred', 'SVR Pred'];
+  const labelsList = ['Prev Close', 'Open Price', 'Low Price', 'Close Price', 'VWAP', 'Linear Pred', 'Poly Pred', 'SVR Pred', 'AdaBoost Pred', 'RF Pred'];
   const dataValues = prediction ? [
     formData.prev_close,
     formData.open_price,
@@ -319,7 +319,9 @@ export default function App() {
     formData.vwap,
     prediction.all_models?.linear || 0,
     prediction.all_models?.polynomial || 0,
-    prediction.all_models?.svr || 0
+    prediction.all_models?.svr || 0,
+    prediction.all_models?.adaboost || 0,
+    prediction.all_models?.random_forest || 0
   ] : [];
 
   const barChartData = prediction ? {
@@ -336,7 +338,9 @@ export default function App() {
           darkMode ? 'rgba(168, 85, 247, 0.5)' : 'rgba(147, 51, 234, 0.65)',
           'rgba(6, 182, 212, 0.85)',
           'rgba(168, 85, 247, 0.85)',
-          'rgba(245, 158, 11, 0.85)'
+          'rgba(245, 158, 11, 0.85)',
+          'rgba(239, 68, 68, 0.85)',
+          'rgba(34, 197, 94, 0.85)'
         ],
         borderColor: [
           '#94a3b8',
@@ -346,7 +350,9 @@ export default function App() {
           '#a855f7',
           '#06b6d4',
           '#a855f7',
-          '#f59e0b'
+          '#f59e0b',
+          '#ef4444',
+          '#22c55e'
         ],
         borderWidth: 2,
         borderRadius: 10,
@@ -373,7 +379,7 @@ export default function App() {
   } : null;
 
   const radarChartData = prediction ? {
-    labels: ['Prev Close', 'Open', 'Low', 'Close', 'VWAP', 'Linear', 'Poly', 'SVR'],
+    labels: ['Prev Close', 'Open', 'Low', 'Close', 'VWAP', 'Linear', 'Poly', 'SVR', 'AdaBoost', 'RF'],
     datasets: [
       {
         label: 'Multi-Model Spectrum',
@@ -691,6 +697,48 @@ export default function App() {
                         <div>
                           <div className="text-xs font-bold">Support Vector (SVR)</div>
                           <div className="text-[10px] opacity-75 font-mono">RBF Kernel</div>
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* AdaBoost */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedModel('adaboost')}
+                      className={`w-full p-3 rounded-2xl border transition-all duration-200 text-left flex items-center justify-between ${
+                        selectedModel === 'adaboost'
+                          ? darkMode
+                            ? 'bg-gradient-to-r from-red-500/20 to-rose-500/20 border-red-500 text-red-300 shadow-md ring-1 ring-red-500'
+                            : 'bg-red-50 border-red-500 text-red-900 font-bold ring-1 ring-red-400'
+                          : darkMode ? 'bg-white/5 border-white/10 text-gray-400 hover:text-white' : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Flame className="w-4 h-4 text-red-500" />
+                        <div>
+                          <div className="text-xs font-bold">AdaBoost Regressor</div>
+                          <div className="text-[10px] opacity-75 font-mono">Ensemble Method</div>
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Random Forest */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedModel('random_forest')}
+                      className={`w-full p-3 rounded-2xl border transition-all duration-200 text-left flex items-center justify-between ${
+                        selectedModel === 'random_forest'
+                          ? darkMode
+                            ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500 text-green-300 shadow-md ring-1 ring-green-500'
+                            : 'bg-green-50 border-green-500 text-green-900 font-bold ring-1 ring-green-400'
+                          : darkMode ? 'bg-white/5 border-white/10 text-gray-400 hover:text-white' : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Layers className="w-4 h-4 text-green-500" />
+                        <div>
+                          <div className="text-xs font-bold">Random Forest</div>
+                          <div className="text-[10px] opacity-75 font-mono">Tree Ensemble</div>
                         </div>
                       </div>
                     </button>
@@ -1454,41 +1502,64 @@ export default function App() {
                       <h3 className={`font-black text-base ${darkMode ? 'text-white' : 'text-slate-900'}`}>Support Vector (SVR)</h3>
                     </div>
                     <span className="text-xs font-bold font-mono px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                      RBF Kernel
+                      R² {modelMetrics.metrics.svr?.r2_score}
                     </span>
                   </div>
 
                   <div className="space-y-3 font-mono">
                     <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                       <div>
-                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Mean Squared Error (MSE)</div>
-                        <div className="text-base font-bold text-amber-400">{modelMetrics.metrics.svr?.mse.toLocaleString('en-IN')}</div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">MSE</div>
+                        <div className="text-base font-bold text-amber-400">{modelMetrics.metrics.svr?.mse}</div>
                       </div>
-                      <div className="text-xs text-gray-500">Baseline</div>
                     </div>
+                  </div>
+                </div>
 
+                {/* 4. AdaBoost Model Metrics Card */}
+                <div className={`rounded-3xl p-6 border space-y-5 relative overflow-hidden transition-all hover:scale-[1.01] ${
+                  darkMode ? 'dark-glass-card border-white/10' : 'light-glass-card border-slate-200'
+                }`}>
+                  <div className="flex items-center justify-between border-b pb-4 border-white/10">
+                    <div className="flex items-center gap-2.5">
+                      <Flame className="w-5 h-5 text-red-500" />
+                      <h3 className={`font-black text-base ${darkMode ? 'text-white' : 'text-slate-900'}`}>AdaBoost Regressor</h3>
+                    </div>
+                    <span className="text-xs font-bold font-mono px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
+                      R² {modelMetrics.metrics.adaboost?.r2_score}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 font-mono">
                     <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                       <div>
-                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Root Mean Squared Error (RMSE)</div>
-                        <div className="text-base font-bold text-amber-400">₹{modelMetrics.metrics.svr?.rmse}</div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">MSE</div>
+                        <div className="text-base font-bold text-red-400">{modelMetrics.metrics.adaboost?.mse}</div>
                       </div>
-                      <div className="text-xs text-gray-500">₹ error</div>
                     </div>
+                  </div>
+                </div>
 
+                {/* 5. Random Forest Model Metrics Card */}
+                <div className={`rounded-3xl p-6 border space-y-5 relative overflow-hidden transition-all hover:scale-[1.01] ${
+                  darkMode ? 'dark-glass-card border-white/10' : 'light-glass-card border-slate-200'
+                }`}>
+                  <div className="flex items-center justify-between border-b pb-4 border-white/10">
+                    <div className="flex items-center gap-2.5">
+                      <Layers className="w-5 h-5 text-green-500" />
+                      <h3 className={`font-black text-base ${darkMode ? 'text-white' : 'text-slate-900'}`}>Random Forest Regressor</h3>
+                    </div>
+                    <span className="text-xs font-bold font-mono px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
+                      R² {modelMetrics.metrics.random_forest?.r2_score}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 font-mono">
                     <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                       <div>
-                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Mean Absolute Error (MAE)</div>
-                        <div className="text-base font-bold text-amber-400">₹{modelMetrics.metrics.svr?.mae}</div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">MSE</div>
+                        <div className="text-base font-bold text-green-400">{modelMetrics.metrics.random_forest?.mse}</div>
                       </div>
-                      <div className="text-xs text-gray-500">Avg Abs Diff</div>
-                    </div>
-
-                    <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
-                      <div>
-                        <div className="text-[10px] text-gray-400 font-bold uppercase">R² Score</div>
-                        <div className="text-sm font-bold text-gray-400">{modelMetrics.metrics.svr?.r2_score}</div>
-                      </div>
-                      <Info className="w-4 h-4 text-gray-500" />
                     </div>
                   </div>
                 </div>

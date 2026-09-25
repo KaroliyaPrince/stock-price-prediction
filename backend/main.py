@@ -43,6 +43,8 @@ def get_file_path(filename, folder="models"):
 LINEAR_MODEL_PATH = get_file_path("stock_model.pkl", "models")
 POLY_MODEL_PATH = get_file_path("stock_poly_model.pkl", "models")
 SVR_MODEL_PATH = get_file_path("stock_SVR_model.pkl", "models")
+ADABOOST_MODEL_PATH = get_file_path("stock_adaboost_model.pkl", "models")
+RF_MODEL_PATH = get_file_path("stock_rf_model.pkl", "models")
 DATA_PATH = get_file_path("cleaned_stock_data.csv", "data")
 
 # Initialize feature transformers
@@ -53,6 +55,8 @@ scaler = StandardScaler()
 linear_model = None
 poly_model = None
 svr_model = None
+adaboost_model = None
+rf_model = None
 
 try:
     if os.path.exists(LINEAR_MODEL_PATH):
@@ -74,6 +78,20 @@ try:
         print(f"[OK] Loaded SVR Model from {SVR_MODEL_PATH}")
 except Exception as e:
     print(f"[ERROR] Failed to load SVR Model: {e}")
+
+try:
+    if os.path.exists(ADABOOST_MODEL_PATH):
+        adaboost_model = joblib.load(ADABOOST_MODEL_PATH)
+        print(f"[OK] Loaded AdaBoost Model from {ADABOOST_MODEL_PATH}")
+except Exception as e:
+    print(f"[ERROR] Failed to load AdaBoost Model: {e}")
+
+try:
+    if os.path.exists(RF_MODEL_PATH):
+        rf_model = joblib.load(RF_MODEL_PATH)
+        print(f"[OK] Loaded Random Forest Model from {RF_MODEL_PATH}")
+except Exception as e:
+    print(f"[ERROR] Failed to load Random Forest Model: {e}")
 
 # Load Dataset & Fit Scaler
 feature_cols = ['Prev Close', 'Open', 'Low', 'Close', 'VWAP', 'Volume', 'Turnover', 'Deliverable Volume', '%Deliverble']
@@ -97,7 +115,7 @@ class StockPredictRequest(BaseModel):
     turnover: float = Field(..., description="Turnover value", example=32.34)
     deliverable_volume: float = Field(..., description="Deliverable Volume", example=2687211.0)
     percent_deliverable: float = Field(..., description="% Deliverable", example=29.68)
-    model_type: str = Field("linear", description="Model choice: 'linear', 'polynomial', 'svr', or 'all'")
+    model_type: str = Field("linear", description="Model choice: 'linear', 'polynomial', 'svr', 'adaboost', 'random_forest' or 'all'")
 
 
 @app.get("/")
@@ -108,7 +126,9 @@ def read_root():
         "models_loaded": {
             "linear": linear_model is not None,
             "polynomial": poly_model is not None,
-            "svr": svr_model is not None
+            "svr": svr_model is not None,
+            "adaboost": adaboost_model is not None,
+            "random_forest": rf_model is not None
         },
         "dataset_rows": len(df) if df is not None else 0
     }
@@ -121,7 +141,9 @@ def health_check():
         "models_loaded": {
             "linear": linear_model is not None,
             "polynomial": poly_model is not None,
-            "svr": svr_model is not None
+            "svr": svr_model is not None,
+            "adaboost": adaboost_model is not None,
+            "random_forest": rf_model is not None
         },
         "features_count": 9,
         "target": "High"
@@ -130,7 +152,7 @@ def health_check():
 
 @app.post("/api/predict")
 def predict_stock_high(data: StockPredictRequest):
-    if linear_model is None and poly_model is None and svr_model is None:
+    if linear_model is None and poly_model is None and svr_model is None and adaboost_model is None and rf_model is None:
         raise HTTPException(status_code=500, detail="No ML models are loaded")
     
     try:
@@ -169,6 +191,16 @@ def predict_stock_high(data: StockPredictRequest):
         if svr_model is not None:
             features_scaled = scaler.transform(features)
             svr_pred = float(svr_model.predict(features_scaled)[0])
+            
+        # 4. AdaBoost Prediction
+        adaboost_pred = None
+        if adaboost_model is not None:
+            adaboost_pred = float(adaboost_model.predict(features)[0])
+            
+        # 5. Random Forest Prediction
+        rf_pred = None
+        if rf_model is not None:
+            rf_pred = float(rf_model.predict(features)[0])
 
         # Active prediction selection
         active_model = data.model_type.lower()
@@ -178,8 +210,14 @@ def predict_stock_high(data: StockPredictRequest):
         elif active_model == "svr" and svr_pred is not None:
             active_pred = svr_pred
             model_name_display = "Support Vector Regression (SVR)"
+        elif active_model == "adaboost" and adaboost_pred is not None:
+            active_pred = adaboost_pred
+            model_name_display = "AdaBoost Regressor"
+        elif active_model in ["random_forest", "rf"] and rf_pred is not None:
+            active_pred = rf_pred
+            model_name_display = "Random Forest Regressor"
         else:
-            active_pred = linear_pred if linear_pred is not None else (poly_pred or svr_pred)
+            active_pred = linear_pred if linear_pred is not None else (poly_pred or svr_pred or adaboost_pred or rf_pred)
             model_name_display = "Linear Regression"
 
         # Calculate metrics relative to inputs
@@ -199,6 +237,8 @@ def predict_stock_high(data: StockPredictRequest):
                 "linear": round(linear_pred, 2) if linear_pred is not None else None,
                 "polynomial": round(poly_pred, 2) if poly_pred is not None else None,
                 "svr": round(svr_pred, 2) if svr_pred is not None else None,
+                "adaboost": round(adaboost_pred, 2) if adaboost_pred is not None else None,
+                "random_forest": round(rf_pred, 2) if rf_pred is not None else None,
             },
             "metrics": {
                 "diff_from_open": diff_from_open,
@@ -268,6 +308,34 @@ def get_model_evaluation_metrics():
                 "mae": round(float(mean_absolute_error(y_actual, pred_svr)), 2),
                 "r2_score": round(float(r2_svr), 6),
                 "accuracy_pct": round(float(r2_svr) * 100, 2)
+            }
+            
+        # 4. AdaBoost Metrics
+        if adaboost_model is not None:
+            pred_ada = adaboost_model.predict(X)
+            mse_ada = mean_squared_error(y_actual, pred_ada)
+            r2_ada = r2_score(y_actual, pred_ada)
+            metrics['adaboost'] = {
+                "model_name": "AdaBoost Regressor",
+                "mse": round(float(mse_ada), 2),
+                "rmse": round(float(np.sqrt(mse_ada)), 2),
+                "mae": round(float(mean_absolute_error(y_actual, pred_ada)), 2),
+                "r2_score": round(float(r2_ada), 6),
+                "accuracy_pct": round(float(r2_ada) * 100, 2)
+            }
+            
+        # 5. Random Forest Metrics
+        if rf_model is not None:
+            pred_rf = rf_model.predict(X)
+            mse_rf = mean_squared_error(y_actual, pred_rf)
+            r2_rf = r2_score(y_actual, pred_rf)
+            metrics['random_forest'] = {
+                "model_name": "Random Forest Regressor",
+                "mse": round(float(mse_rf), 2),
+                "rmse": round(float(np.sqrt(mse_rf)), 2),
+                "mae": round(float(mean_absolute_error(y_actual, pred_rf)), 2),
+                "r2_score": round(float(r2_rf), 6),
+                "accuracy_pct": round(float(r2_rf) * 100, 2)
             }
 
         return {
@@ -341,8 +409,13 @@ def get_model_weights():
         "Volume", "Turnover", "Deliverable Volume", "%Deliverble"
     ]
     
-    coefs = list(getattr(linear_model, "coef_", []))
-    intercept = float(getattr(linear_model, "intercept_", 0.0))
+    if hasattr(linear_model, "estimators_"):
+        import numpy as np
+        coefs = np.mean([est.coef_ for est in linear_model.estimators_], axis=0).tolist()
+        intercept = float(np.mean([est.intercept_ for est in linear_model.estimators_]))
+    else:
+        coefs = list(getattr(linear_model, "coef_", []))
+        intercept = float(getattr(linear_model, "intercept_", 0.0))
     
     weights = []
     for name, coef in zip(feature_names, coefs):
