@@ -24,9 +24,9 @@ def train_and_save():
     print("Training Bagging Linear Regression...")
     bagging_linear = BaggingRegressor(
         estimator=LinearRegression(), 
-        n_estimators=30, 
-        max_samples=0.2, 
-        max_features=0.4, 
+        n_estimators=50, 
+        max_samples=0.01, 
+        max_features=0.1, 
         random_state=42
     )
     bagging_linear.fit(X, y)
@@ -38,9 +38,9 @@ def train_and_save():
     X_poly = poly_transformer.fit_transform(X)
     bagging_poly = BaggingRegressor(
         estimator=LinearRegression(), 
-        n_estimators=30, 
-        max_samples=0.2, 
-        max_features=0.1, 
+        n_estimators=50, 
+        max_samples=0.02, 
+        max_features=0.02, 
         random_state=42
     )
     bagging_poly.fit(X_poly, y)
@@ -48,12 +48,13 @@ def train_and_save():
     
     # 3. Bagging AdaBoost Regressor
     print("Training Bagging AdaBoost Regressor...")
-    adaboost_base = AdaBoostRegressor(n_estimators=20, random_state=42)
+    from sklearn.tree import DecisionTreeRegressor
+    adaboost_base = AdaBoostRegressor(estimator=DecisionTreeRegressor(max_depth=2), n_estimators=10, random_state=42)
     bagging_adaboost = BaggingRegressor(
         estimator=adaboost_base,
-        n_estimators=15,
-        max_samples=0.2,
-        max_features=0.4,
+        n_estimators=30,
+        max_samples=0.1,
+        max_features=0.2,
         random_state=42
     )
     bagging_adaboost.fit(X, y)
@@ -61,12 +62,12 @@ def train_and_save():
     
     # 4. Bagging Random Forest Regressor
     print("Training Bagging Random Forest Regressor...")
-    rf_base = RandomForestRegressor(n_estimators=20, max_depth=5, random_state=42)
+    rf_base = RandomForestRegressor(n_estimators=10, max_depth=2, random_state=42)
     bagging_rf = BaggingRegressor(
         estimator=rf_base,
-        n_estimators=15,
-        max_samples=0.2,
-        max_features=0.4,
+        n_estimators=30,
+        max_samples=0.1,
+        max_features=0.2,
         random_state=42
     )
     bagging_rf.fit(X, y)
