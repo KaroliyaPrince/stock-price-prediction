@@ -25,8 +25,8 @@ def train_and_save():
     bagging_linear = BaggingRegressor(
         estimator=LinearRegression(), 
         n_estimators=30, 
-        max_samples=0.6, 
-        max_features=0.8, 
+        max_samples=0.2, 
+        max_features=0.4, 
         random_state=42
     )
     bagging_linear.fit(X, y)
@@ -39,8 +39,8 @@ def train_and_save():
     bagging_poly = BaggingRegressor(
         estimator=LinearRegression(), 
         n_estimators=30, 
-        max_samples=0.6, 
-        max_features=0.8, 
+        max_samples=0.2, 
+        max_features=0.1, 
         random_state=42
     )
     bagging_poly.fit(X_poly, y)
@@ -52,8 +52,8 @@ def train_and_save():
     bagging_adaboost = BaggingRegressor(
         estimator=adaboost_base,
         n_estimators=15,
-        max_samples=0.6,
-        max_features=0.8,
+        max_samples=0.2,
+        max_features=0.4,
         random_state=42
     )
     bagging_adaboost.fit(X, y)
@@ -61,12 +61,12 @@ def train_and_save():
     
     # 4. Bagging Random Forest Regressor
     print("Training Bagging Random Forest Regressor...")
-    rf_base = RandomForestRegressor(n_estimators=20, max_depth=10, random_state=42)
+    rf_base = RandomForestRegressor(n_estimators=20, max_depth=5, random_state=42)
     bagging_rf = BaggingRegressor(
         estimator=rf_base,
         n_estimators=15,
-        max_samples=0.6,
-        max_features=0.8,
+        max_samples=0.2,
+        max_features=0.4,
         random_state=42
     )
     bagging_rf.fit(X, y)
