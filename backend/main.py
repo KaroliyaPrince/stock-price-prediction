@@ -411,8 +411,25 @@ def get_model_weights():
     
     if hasattr(linear_model, "estimators_"):
         import numpy as np
-        coefs = np.mean([est.coef_ for est in linear_model.estimators_], axis=0).tolist()
-        intercept = float(np.mean([est.intercept_ for est in linear_model.estimators_]))
+        feature_coef_list = [[] for _ in range(len(feature_names))]
+        intercept_list = []
+        
+        estimators_features = getattr(linear_model, "estimators_features_", None)
+        for i, est in enumerate(linear_model.estimators_):
+            intercept_list.append(float(getattr(est, "intercept_", 0.0)))
+            est_coefs = getattr(est, "coef_", [])
+            if estimators_features is not None and i < len(estimators_features):
+                feat_indices = estimators_features[i]
+                for coef_val, feat_idx in zip(est_coefs, feat_indices):
+                    if feat_idx < len(feature_coef_list):
+                        feature_coef_list[feat_idx].append(float(coef_val))
+            else:
+                for idx, coef_val in enumerate(est_coefs):
+                    if idx < len(feature_coef_list):
+                        feature_coef_list[idx].append(float(coef_val))
+
+        coefs = [float(np.mean(c)) if len(c) > 0 else 0.0 for c in feature_coef_list]
+        intercept = float(np.mean(intercept_list)) if len(intercept_list) > 0 else 0.0
     else:
         coefs = list(getattr(linear_model, "coef_", []))
         intercept = float(getattr(linear_model, "intercept_", 0.0))

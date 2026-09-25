@@ -1533,9 +1533,34 @@ export default function App() {
                   <div className="space-y-3 font-mono">
                     <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                       <div>
-                        <div className="text-[10px] text-gray-400 uppercase font-semibold">MSE</div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Mean Squared Error (MSE)</div>
                         <div className="text-base font-bold text-amber-400">{modelMetrics.metrics.svr?.mse}</div>
                       </div>
+                      <div className="text-xs text-gray-500">e²</div>
+                    </div>
+
+                    <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                      <div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Root Mean Squared Error (RMSE)</div>
+                        <div className="text-base font-bold text-amber-400">₹{modelMetrics.metrics.svr?.rmse}</div>
+                      </div>
+                      <div className="text-xs text-gray-500">₹ error</div>
+                    </div>
+
+                    <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                      <div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Mean Absolute Error (MAE)</div>
+                        <div className="text-base font-bold text-amber-400">₹{modelMetrics.metrics.svr?.mae}</div>
+                      </div>
+                      <div className="text-xs text-gray-500">Avg Abs Diff</div>
+                    </div>
+
+                    <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'}`}>
+                      <div>
+                        <div className="text-[10px] text-emerald-500 font-bold uppercase">Accuracy (R² Score)</div>
+                        <div className="text-lg font-black text-emerald-400">{modelMetrics.metrics.svr?.accuracy_pct}%</div>
+                      </div>
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                     </div>
                   </div>
                 </div>
@@ -1557,9 +1582,34 @@ export default function App() {
                   <div className="space-y-3 font-mono">
                     <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                       <div>
-                        <div className="text-[10px] text-gray-400 uppercase font-semibold">MSE</div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Mean Squared Error (MSE)</div>
                         <div className="text-base font-bold text-red-400">{modelMetrics.metrics.adaboost?.mse}</div>
                       </div>
+                      <div className="text-xs text-gray-500">e²</div>
+                    </div>
+
+                    <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                      <div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Root Mean Squared Error (RMSE)</div>
+                        <div className="text-base font-bold text-red-400">₹{modelMetrics.metrics.adaboost?.rmse}</div>
+                      </div>
+                      <div className="text-xs text-gray-500">₹ error</div>
+                    </div>
+
+                    <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                      <div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Mean Absolute Error (MAE)</div>
+                        <div className="text-base font-bold text-red-400">₹{modelMetrics.metrics.adaboost?.mae}</div>
+                      </div>
+                      <div className="text-xs text-gray-500">Avg Abs Diff</div>
+                    </div>
+
+                    <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'}`}>
+                      <div>
+                        <div className="text-[10px] text-emerald-500 font-bold uppercase">Accuracy (R² Score)</div>
+                        <div className="text-lg font-black text-emerald-400">{modelMetrics.metrics.adaboost?.accuracy_pct}%</div>
+                      </div>
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                     </div>
                   </div>
                 </div>
@@ -1581,9 +1631,34 @@ export default function App() {
                   <div className="space-y-3 font-mono">
                     <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                       <div>
-                        <div className="text-[10px] text-gray-400 uppercase font-semibold">MSE</div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Mean Squared Error (MSE)</div>
                         <div className="text-base font-bold text-green-400">{modelMetrics.metrics.random_forest?.mse}</div>
                       </div>
+                      <div className="text-xs text-gray-500">e²</div>
+                    </div>
+
+                    <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                      <div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Root Mean Squared Error (RMSE)</div>
+                        <div className="text-base font-bold text-green-400">₹{modelMetrics.metrics.random_forest?.rmse}</div>
+                      </div>
+                      <div className="text-xs text-gray-500">₹ error</div>
+                    </div>
+
+                    <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                      <div>
+                        <div className="text-[10px] text-gray-400 uppercase font-semibold">Mean Absolute Error (MAE)</div>
+                        <div className="text-base font-bold text-green-400">₹{modelMetrics.metrics.random_forest?.mae}</div>
+                      </div>
+                      <div className="text-xs text-gray-500">Avg Abs Diff</div>
+                    </div>
+
+                    <div className={`p-3 rounded-2xl border flex items-center justify-between ${darkMode ? 'bg-[#0b0f1a] border-emerald-500/30' : 'bg-emerald-50 border-emerald-200'}`}>
+                      <div>
+                        <div className="text-[10px] text-emerald-500 font-bold uppercase">Accuracy (R² Score)</div>
+                        <div className="text-lg font-black text-emerald-400">{modelMetrics.metrics.random_forest?.accuracy_pct}%</div>
+                      </div>
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                     </div>
                   </div>
                 </div>
